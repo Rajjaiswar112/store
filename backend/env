@@ -1,0 +1,6 @@
+MONGO_URL=mongodb://localhost:27017
+DB_NAME=zenkai
+JWT_SECRET=zenkai123
+ADMIN_EMAIL=admin@zenkai.com
+ADMIN_PASSWORD=admin123
+STRIPE_API_KEY=sk_test_yourkey
