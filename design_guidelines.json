@@ -1,0 +1,123 @@
+{
+  "theme": "dark",
+  "archetype": "7 (Electric & Neon)",
+  "brand": {
+    "name": "Zenkai",
+    "tagline": "Power Your Anime World",
+    "domain": "eCommerce (Anime Cyberpunk)"
+  },
+  "colors": {
+    "background": {
+      "base": "#050505",
+      "surface": "#0a0a0f",
+      "surface_elevated": "#12121a"
+    },
+    "text": {
+      "primary": "#ffffff",
+      "secondary": "#a1a1aa",
+      "muted": "#71717a"
+    },
+    "brand": {
+      "primary": "#b026ff",
+      "primary_glow": "rgba(176, 38, 255, 0.5)",
+      "secondary": "#00f3ff",
+      "secondary_glow": "rgba(0, 243, 255, 0.5)",
+      "accent": "#ff0055"
+    },
+    "border": {
+      "default": "rgba(255,255,255,0.05)",
+      "hover": "rgba(176, 38, 255, 0.4)",
+      "neon": "rgba(0, 243, 255, 0.6)"
+    }
+  },
+  "typography": {
+    "fonts": {
+      "heading": "Chakra Petch",
+      "body": "Rajdhani",
+      "mono": "JetBrains Mono"
+    },
+    "scales": {
+      "h1": "text-4xl sm:text-5xl lg:text-6xl tracking-tighter uppercase font-bold",
+      "h2": "text-3xl sm:text-4xl tracking-tight uppercase font-semibold",
+      "h3": "text-xl sm:text-2xl tracking-wide uppercase",
+      "body": "text-base leading-relaxed tracking-wide",
+      "small": "text-sm tracking-widest uppercase"
+    },
+    "setup_instructions": "Add Google Fonts imports for Chakra Petch and Rajdhani in index.css. Use Tailwind configuration to extend font families."
+  },
+  "layout_and_spacing": {
+    "grid_system": "Bento 'Tetris' Grid for Homepage. Asymmetric blocks with 1px borders and heavy glassmorphism.",
+    "spacing": "Generous spacing. Use p-6, p-8, p-12 for containers. gap-8 for grids.",
+    "container_borders": "All containers must have internal padding (p-6 or p-8) to prevent text collision."
+  },
+  "components": {
+    "surfaces": {
+      "glassmorphism": "bg-[#0a0a0f]/60 backdrop-blur-xl border border-white/5 shadow-[0_4px_30px_rgba(0,0,0,0.5)]",
+      "neon_border": "border border-transparent hover:border-[#b026ff] hover:shadow-[0_0_20px_rgba(176,38,255,0.3)] transition-all duration-300"
+    },
+    "buttons": {
+      "primary": "bg-transparent border border-[#b026ff] text-[#b026ff] hover:bg-[#b026ff] hover:text-white hover:shadow-[0_0_20px_rgba(176,38,255,0.6)] px-8 py-3 uppercase tracking-widest font-bold transition-all duration-300",
+      "secondary": "bg-white/5 border border-white/10 text-white hover:border-[#00f3ff] hover:text-[#00f3ff] hover:shadow-[0_0_15px_rgba(0,243,255,0.4)] px-8 py-3 uppercase tracking-widest transition-all duration-300"
+    },
+    "inputs": "bg-black/50 border border-white/10 text-white focus:border-[#b026ff] focus:ring-1 focus:ring-[#b026ff] rounded-none",
+    "cards": "bg-[#0a0a0f]/40 border border-white/5 hover:border-[#b026ff]/50 hover:bg-[#12121a]/60 transition-colors duration-300"
+  },
+  "icons": {
+    "library": "lucide-react",
+    "stroke_width": 1.5,
+    "instructions": "Use Lucide React. Keep icons sharp and thin to match the futuristic technical aesthetic."
+  },
+  "media": {
+    "hero": {
+      "url": "https://images.pexels.com/photos/28122495/pexels-photo-28122495.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "description": "Vibrant neon lights create a cyberpunk aesthetic in a bustling urban alleyway at night.",
+      "category": "Hero Background"
+    },
+    "categories": [
+      {
+        "name": "Acrylic Plaques",
+        "url": "https://static.prod-images.emergentagent.com/jobs/b26368f1-ca8e-41bf-a482-f17727a0d107/images/83d21692e93a35182f05af6ad6e3efd4f99908f1ff94571b76e8873bd59ac7c1.png",
+        "description": "Glowing neon anime character etched in thick transparent acrylic glass"
+      },
+      {
+        "name": "LED Frames",
+        "url": "https://static.prod-images.emergentagent.com/jobs/b26368f1-ca8e-41bf-a482-f17727a0d107/images/d41d9a539d2d4f74a1654003c0e314f321acc88ef8f948c42448d87bb0bad174.png",
+        "description": "Illuminated vivid anime poster inside a futuristic matte black LED lightbox frame"
+      },
+      {
+        "name": "Manga Canvas",
+        "url": "https://static.prod-images.emergentagent.com/jobs/b26368f1-ca8e-41bf-a482-f17727a0d107/images/b59b626859771bee1503c787825a46513d538dbe0c270fb9cf070bac537d0628.png",
+        "description": "Premium black and white high-contrast manga panel canvas art"
+      },
+      {
+        "name": "Neon Collectibles",
+        "url": "https://static.prod-images.emergentagent.com/jobs/b26368f1-ca8e-41bf-a482-f17727a0d107/images/e72d2dbaf377ff55f1e825bab3ba944992d7e342b8f27b43662c46d522f79ee2.png",
+        "description": "Highly detailed mecha anime figure standing inside a glowing neon cyberpunk display case"
+      },
+      {
+        "name": "Posters",
+        "url": "https://images.pexels.com/photos/8108594/pexels-photo-8108594.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Stylish woman in cyberpunk outfit illuminated by vibrant neon lights (fallback for poster vibe)"
+      }
+    ],
+    "generic_product": {
+      "url": "https://images.unsplash.com/photo-1618902345120-77758161d808?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MDV8MHwxfHNlYXJjaHw0fHxjeWJlcnB1bmslMjBuZW9uJTIwZGFya3xlbnwwfHx8fDE3Nzg1MDI5MjJ8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Blue and white light post / generic neon asset"
+    }
+  },
+  "effects": {
+    "grain_overlay": "Apply a subtle noise texture (SVG or CSS) over the deep black background to remove the 'digital flat' look.",
+    "hover_glow": "Do not use solid neon backgrounds for hover. Use 1px neon borders combined with drop-shadows to simulate light bleed.",
+    "scroll": "Use Lenis for smooth momentum scrolling to add a premium feel to the high-contrast aesthetic."
+  },
+  "instructions_to_main_agent": [
+    "Strictly adhere to the dark theme #050505 base background. Avoid standard white/light grey SaaS elements.",
+    "Use Chakra Petch for all headings to establish the mecha/cyberpunk vibe.",
+    "Implement a 'Bento Box' grid on the homepage showcasing the different categories using the provided generated images.",
+    "For product cards, keep corners sharp (rounded-none or max rounded-sm) to match the techwear/cyberpunk look.",
+    "Add 'data-testid' to all interactive and key informational elements for robust testing.",
+    "Ensure the header uses heavy backdrop-blur (glassmorphism) over the hero image.",
+    "For the Hero image overlay, use bg-black/60 to ensure the tagline 'POWER YOUR ANIME WORLD' in neon cyan/purple pops.",
+    "Do NOT use raw input elements, fallback to Shadcn/UI for checkout/cart, fully customized to match neon aesthetics."
+  ]
+}
