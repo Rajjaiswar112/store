@@ -428,56 +428,7 @@ async def toggle_wishlist(pid: str, user: dict = Depends(get_current_user)):
     return {"added": True}
 
 # ---------- Stripe Checkout ----------
-@api.post("/checkout/session")
-async def create_checkout(body: CheckoutIn, request: Request, user: dict = Depends(get_current_user)):
-    cart = await db.carts.find_one({"user_id": user["id"]})
-    if not cart or not cart.get("items"):
-        raise HTTPException(400, "Cart is empty")
-    # Compute amount on backend ONLY
-    total = 0.0
-    line_summary = []
-    for it in cart["items"]:
-        p = await db.products.find_one({"id": it["product_id"]}, {"_id": 0})
-        if not p:
-            continue
-        total += float(p["price"]) * int(it["quantity"])
-        line_summary.append(f"{p['name']} x{it['quantity']}")
-    if total <= 0:
-        raise HTTPException(400, "Invalid total")
-    total = round(total, 2)
 
-    host_url = str(request.base_url).rstrip("/")
-    webhook_url = f"{host_url}/api/webhook/stripe"
-    stripe = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
-    origin = body.origin_url.rstrip("/")
-    success_url = f"{origin}/order/success?session_id={{CHECKOUT_SESSION_ID}}"
-    cancel_url = f"{origin}/cart"
-
-    req = CheckoutSessionRequest(
-        amount=total,
-        currency="usd",
-        success_url=success_url,
-        cancel_url=cancel_url,
-        metadata={"user_id": user["id"], "email": user["email"]},
-    )
-    session = await stripe.create_checkout_session(req)
-
-    order_id = str(uuid.uuid4())
-    await db.payment_transactions.insert_one({
-        "id": order_id,
-        "session_id": session.session_id,
-        "user_id": user["id"],
-        "email": user["email"],
-        "amount": total,
-        "currency": "usd",
-        "items": cart["items"],
-        "summary": line_summary,
-        "shipping_address": body.shipping_address,
-        "payment_status": "initiated",
-        "status": "open",
-        "created_at": datetime.now(timezone.utc).isoformat(),
-    })
-    return {"url": session.url, "session_id": session.session_id}
 
 stripe_sdk.api_key = STRIPE_API_KEY
 
