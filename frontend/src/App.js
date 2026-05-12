@@ -1,54 +1,70 @@
-import { useEffect } from "react";
-import "@/App.css";
+import React, { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import { Toaster } from "sonner";
+import "./App.css";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+import { AuthProvider } from "./context/AuthContext";
+import { CartProvider } from "./context/CartContext";
+import { WishlistProvider } from "./context/WishlistContext";
 
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
-    }
-  };
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import CartDrawer from "./components/CartDrawer";
+import ProtectedRoute from "./components/ProtectedRoute";
 
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
+import Home from "./pages/Home";
+import Shop from "./pages/Shop";
+import ProductDetail from "./pages/ProductDetail";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Profile from "./pages/Profile";
+import Success from "./pages/Success";
+import Admin from "./pages/Admin";
 
-  return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
-    </div>
-  );
-};
+function Shell() {
+    const [cartOpen, setCartOpen] = useState(false);
+    return (
+        <div className="App min-h-screen bg-[#050505] text-white relative">
+            <Navbar onCartOpen={() => setCartOpen(true)} />
+            <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
+            <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/shop" element={<Shop />} />
+                <Route path="/product/:id" element={<ProductDetail />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                <Route path="/orders" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                <Route path="/wishlist" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                <Route path="/order/success" element={<ProtectedRoute><Success /></ProtectedRoute>} />
+                <Route path="/admin" element={<ProtectedRoute adminOnly><Admin /></ProtectedRoute>} />
+            </Routes>
+            <Footer />
+            <Toaster position="bottom-right" theme="dark" toastOptions={{
+                style: {
+                    background: "rgba(10,10,15,0.95)",
+                    border: "1px solid rgba(176,38,255,0.3)",
+                    color: "#fff",
+                    fontFamily: "Rajdhani, sans-serif",
+                    fontSize: "14px",
+                }
+            }} />
+        </div>
+    );
+}
 
 function App() {
-  return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </div>
-  );
+    return (
+        <BrowserRouter>
+            <AuthProvider>
+                <WishlistProvider>
+                    <CartProvider>
+                        <Shell />
+                    </CartProvider>
+                </WishlistProvider>
+            </AuthProvider>
+        </BrowserRouter>
+    );
 }
 
 export default App;
