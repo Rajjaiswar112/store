@@ -196,8 +196,10 @@ async def register(body: RegisterIn, response: Response):
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
     await db.users.insert_one(user)
-    set_auth_cookies(response, create_access_token(uid, email, "user"), create_refresh_token(uid))
-    return {"id": uid, "email": email, "name": body.name, "role": "user"}
+    access = create_access_token(uid, email, "user")
+    refresh = create_refresh_token(uid)
+    set_auth_cookies(response, access, refresh)
+    return {"id": uid, "email": email, "name": body.name, "role": "user", "access_token": access}
 
 @api.post("/auth/login")
 async def login(body: LoginIn, response: Response):
@@ -205,8 +207,10 @@ async def login(body: LoginIn, response: Response):
     user = await db.users.find_one({"email": email})
     if not user or not verify_password(body.password, user["password_hash"]):
         raise HTTPException(401, "Invalid email or password")
-    set_auth_cookies(response, create_access_token(user["id"], email, user["role"]), create_refresh_token(user["id"]))
-    return {"id": user["id"], "email": email, "name": user["name"], "role": user["role"]}
+    access = create_access_token(user["id"], email, user["role"])
+    refresh = create_refresh_token(user["id"])
+    set_auth_cookies(response, access, refresh)
+    return {"id": user["id"], "email": email, "name": user["name"], "role": user["role"], "access_token": access}
 
 @api.post("/auth/logout")
 async def logout(response: Response):
