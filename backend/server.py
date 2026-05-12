@@ -23,6 +23,7 @@ from emergentintegrations.payments.stripe.checkout import (
     StripeCheckout,
     CheckoutSessionRequest,
 )
+import stripe as stripe_sdk
 
 # ---------- Config ----------
 MONGO_URL = os.environ['MONGO_URL']
@@ -480,35 +481,46 @@ async def create_checkout(body: CheckoutIn, request: Request, user: dict = Depen
 
 @api.get("/checkout/status/{session_id}")
 async def checkout_status(session_id: str, request: Request, user: dict = Depends(get_current_user)):
-    host_url = str(request.base_url).rstrip("/")
-    webhook_url = f"{host_url}/api/webhook/stripe"
-    stripe = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
-    status = await stripe.get_checkout_status(session_id)
+    # Use stripe SDK directly via emergent integrations proxy to avoid emergentintegrations metadata coercion bug
+    stripe_sdk.api_key = STRIPE_API_KEY
+    stripe_sdk.api_base = "https://integrations.emergentagent.com/stripe"
+    try:
+        session = stripe_sdk.checkout.Session.retrieve(session_id)
+    except Exception as e:
+        raise HTTPException(502, f"Stripe lookup failed: {e}")
+
+    payment_status = getattr(session, "payment_status", None) or "unpaid"
+    status_val = getattr(session, "status", None) or "open"
+    amount_total = getattr(session, "amount_total", None) or 0
+    currency = getattr(session, "currency", None) or "usd"
+
     tx = await db.payment_transactions.find_one({"session_id": session_id}, {"_id": 0})
-    if tx and tx["payment_status"] != status.payment_status:
+    if tx and tx["payment_status"] != payment_status:
         await db.payment_transactions.update_one(
             {"session_id": session_id},
-            {"$set": {"payment_status": status.payment_status, "status": status.status}},
+            {"$set": {"payment_status": payment_status, "status": status_val}},
         )
-        if status.payment_status == "paid" and tx.get("payment_status") != "paid":
-            # Create an order and clear cart (idempotent)
-            await db.orders.insert_one({
-                "id": tx["id"],
-                "user_id": tx["user_id"],
-                "email": tx["email"],
-                "amount": tx["amount"],
-                "items": tx["items"],
-                "summary": tx["summary"],
-                "shipping_address": tx.get("shipping_address"),
-                "status": "paid",
-                "created_at": datetime.now(timezone.utc).isoformat(),
-            })
+        if payment_status == "paid" and tx.get("payment_status") != "paid":
+            # idempotent order creation
+            existing = await db.orders.find_one({"id": tx["id"]})
+            if not existing:
+                await db.orders.insert_one({
+                    "id": tx["id"],
+                    "user_id": tx["user_id"],
+                    "email": tx["email"],
+                    "amount": tx["amount"],
+                    "items": tx["items"],
+                    "summary": tx["summary"],
+                    "shipping_address": tx.get("shipping_address"),
+                    "status": "paid",
+                    "created_at": datetime.now(timezone.utc).isoformat(),
+                })
             await db.carts.update_one({"user_id": tx["user_id"]}, {"$set": {"items": []}})
     return {
-        "payment_status": status.payment_status,
-        "status": status.status,
-        "amount_total": status.amount_total,
-        "currency": status.currency,
+        "payment_status": payment_status,
+        "status": status_val,
+        "amount_total": amount_total,
+        "currency": currency,
     }
 
 @api.post("/webhook/stripe")
