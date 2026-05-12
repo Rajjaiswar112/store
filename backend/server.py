@@ -106,7 +106,7 @@ def set_auth_cookies(resp: Response, access: str, refresh: str):
     resp.set_cookie("access_token", access, httponly=True, secure=True, samesite="none", max_age=86400, path="/")
     resp.set_cookie("refresh_token", refresh, httponly=True, secure=True, samesite="none", max_age=604800, path="/")
 
-async def get_current_user(request: Request) -> dict:
+ -> dict:
     token = request.cookies.get("access_token")
     if not token:
         auth = request.headers.get("Authorization", "")
