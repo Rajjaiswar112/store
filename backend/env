@@ -1,5 +1,4 @@
-MONGO_URL=mongodb+srv://rajjaiswar057_db_user:YOUR_PASSWORD@cluster0.lk4s7ny.mongodb.net/zenkai?retryWrites=true&w=majority&appName=Cluster0
-DB_NAME=zenkai
+MONGO_URL=mongodb+srv://rajjaiswar057_db_user:<db_password>@cluster0.lk4s7ny.mongodb.net/?appName=Cluster0
 JWT_SECRET=super-secret-jwt-key-zenkai-rajja-2024-1234567890
 ADMIN_EMAIL=admin@zenkai.com
 ADMIN_PASSWORD=admin123
