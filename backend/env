@@ -1,8 +1,7 @@
-MONGO_URL=mongodb://localhost:27017/zenkai
+MONGO_URL=mongodb+srv://rajjaiswar057_db_user:YOUR_PASSWORD@cluster0.lk4s7ny.mongodb.net/zenkai?retryWrites=true&w=majority&appName=Cluster0
 DB_NAME=zenkai
-JWT_SECRET=your-super-secret-jwt-key-here-make-it-long
+JWT_SECRET=super-secret-jwt-key-zenkai-rajja-2024-1234567890
 ADMIN_EMAIL=admin@zenkai.com
 ADMIN_PASSWORD=admin123
-STRIPE_API_KEY=sk_test_your_stripe_test_key
-EMERGENT_LLM_KEY=your-emergent-key-if-you-have
-APP_NAME=zenkai
+STRIPE_API_KEY=pk_test_...  # Optional for now
+APP_NAME=zenkaii
