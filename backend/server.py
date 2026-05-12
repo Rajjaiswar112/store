@@ -479,51 +479,126 @@ async def create_checkout(body: CheckoutIn, request: Request, user: dict = Depen
     })
     return {"url": session.url, "session_id": session.session_id}
 
+stripe_sdk.api_key = STRIPE_API_KEY
+
+@api.post("/checkout/session")
+async def create_checkout(body: CheckoutIn, request: Request, user: dict = Depends(get_current_user)):
+    cart = await db.carts.find_one({"user_id": user["id"]})
+
+    if not cart or not cart.get("items"):
+        raise HTTPException(400, "Cart is empty")
+
+    line_items = []
+    total = 0
+
+    for item in cart["items"]:
+        product = await db.products.find_one({"id": item["product_id"]}, {"_id": 0})
+
+        if not product:
+            continue
+
+        quantity = int(item["quantity"])
+        price = float(product["price"])
+
+        total += price * quantity
+
+        image_url = ""
+        if product.get("images"):
+            image_url = product["images"][0]
+
+        line_items.append({
+            "price_data": {
+                "currency": "usd",
+                "product_data": {
+                    "name": product["name"],
+                    "images": [image_url] if image_url else []
+                },
+                "unit_amount": int(price * 100)
+            },
+            "quantity": quantity
+        })
+
+    if not line_items:
+        raise HTTPException(400, "No valid products")
+
+    origin = body.origin_url.rstrip("/")
+
+    try:
+        session = stripe_sdk.checkout.Session.create(
+            payment_method_types=["card"],
+            line_items=line_items,
+            mode="payment",
+            success_url=f"{origin}/order/success?session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url=f"{origin}/cart",
+            metadata={
+                "user_id": user["id"],
+                "email": user["email"]
+            }
+        )
+
+        order_id = str(uuid.uuid4())
+
+        await db.payment_transactions.insert_one({
+            "id": order_id,
+            "session_id": session.id,
+            "user_id": user["id"],
+            "email": user["email"],
+            "amount": total,
+            "status": "pending",
+            "items": cart["items"],
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        })
+
+        return {
+            "url": session.url,
+            "session_id": session.id
+        }
+
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+
 @api.get("/checkout/status/{session_id}")
-async def checkout_status(session_id: str, request: Request, user: dict = Depends(get_current_user)):
-    # Use stripe SDK directly via emergent integrations proxy to avoid emergentintegrations metadata coercion bug
-    stripe_sdk.api_key = STRIPE_API_KEY
-    stripe_sdk.api_base = "https://integrations.emergentagent.com/stripe"
+async def checkout_status(session_id: str, user: dict = Depends(get_current_user)):
+
     try:
         session = stripe_sdk.checkout.Session.retrieve(session_id)
+
+        payment_status = session.payment_status
+
+        if payment_status == "paid":
+            tx = await db.payment_transactions.find_one({"session_id": session_id})
+
+            if tx:
+                existing = await db.orders.find_one({"id": tx["id"]})
+
+                if not existing:
+                    await db.orders.insert_one({
+                        "id": tx["id"],
+                        "user_id": tx["user_id"],
+                        "email": tx["email"],
+                        "amount": tx["amount"],
+                        "items": tx["items"],
+                        "status": "paid",
+                        "created_at": datetime.now(timezone.utc).isoformat(),
+                    })
+
+                await db.carts.update_one(
+                    {"user_id": tx["user_id"]},
+                    {"$set": {"items": []}}
+                )
+
+        return {
+            "payment_status": payment_status,
+            "status": session.status
+        }
+
     except Exception as e:
-        raise HTTPException(502, f"Stripe lookup failed: {e}")
+        raise HTTPException(500, str(e))
+```
 
-    payment_status = getattr(session, "payment_status", None) or "unpaid"
-    status_val = getattr(session, "status", None) or "open"
-    amount_total = getattr(session, "amount_total", None) or 0
-    currency = getattr(session, "currency", None) or "usd"
+---
 
-    tx = await db.payment_transactions.find_one({"session_id": session_id}, {"_id": 0})
-    if tx and tx["payment_status"] != payment_status:
-        await db.payment_transactions.update_one(
-            {"session_id": session_id},
-            {"$set": {"payment_status": payment_status, "status": status_val}},
-        )
-        if payment_status == "paid" and tx.get("payment_status") != "paid":
-            # idempotent order creation
-            existing = await db.orders.find_one({"id": tx["id"]})
-            if not existing:
-                await db.orders.insert_one({
-                    "id": tx["id"],
-                    "user_id": tx["user_id"],
-                    "email": tx["email"],
-                    "amount": tx["amount"],
-                    "items": tx["items"],
-                    "summary": tx["summary"],
-                    "shipping_address": tx.get("shipping_address"),
-                    "status": "paid",
-                    "created_at": datetime.now(timezone.utc).isoformat(),
-                })
-            await db.carts.update_one({"user_id": tx["user_id"]}, {"$set": {"items": []}})
-    return {
-        "payment_status": payment_status,
-        "status": status_val,
-        "amount_total": amount_total,
-        "currency": currency,
-    }
-
-@api.post("/webhook/stripe")
 async def stripe_webhook(request: Request):
     body = await request.body()
     host_url = str(request.base_url).rstrip("/")
