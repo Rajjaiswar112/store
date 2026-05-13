@@ -24,4 +24,8 @@ numpy>=1.26.0
 python-multipart>=0.0.9
 jq>=1.6.0
 typer>=0.9.0
+<<<<<<< HEAD
 
+=======
+emergentintegrations==0.1.0
+>>>>>>> e87fb93ef698b7de547f7a2039d8e8966a01fed6
