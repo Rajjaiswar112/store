@@ -1,7 +1,0 @@
-https://store-14yv.onrender.com
-MONGO_URL=mongodb+srv://raj123:admin123@cluster0.lk4s7ny.mongodb.net/store?retryWrites=true&w=majority&tls=true&tlsAllowInvalidCertificates=true
-DB_NAME=store
-JWT_SECRET=zenkai123
-ADMIN_EMAIL=admin@zenkai.com
-ADMIN_PASSWORD=admin123
-STRIPE_API_KEY=sk_test_xxx

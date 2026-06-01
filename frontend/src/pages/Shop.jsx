@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { api, CATEGORIES, categoryName } from "../lib/api";
+import { api } from "../lib/api";
 import ProductCard from "../components/ProductCard";
-import { SlidersHorizontal, X } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function Shop() {
-    const [params, setParams] = useSearchParams();
+    const [params] = useSearchParams();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [sort, setSort] = useState("default");
 
     const category = params.get("category") || "";
     const search = params.get("search") || "";
@@ -20,87 +19,68 @@ export default function Shop() {
         if (search) q.set("search", search);
         q.set("limit", "100");
         api.get(`/products?${q.toString()}`).then(({ data }) => {
-            let list = [...data];
-            if (sort === "price_asc") list.sort((a,b) => a.price - b.price);
-            if (sort === "price_desc") list.sort((a,b) => b.price - a.price);
-            if (sort === "name") list.sort((a,b) => a.name.localeCompare(b.name));
-            setProducts(list);
+            setProducts(data);
         }).finally(() => setLoading(false));
-    }, [category, search, sort]);
+    }, [category, search]);
 
-    const setCategory = (slug) => {
-        const p = new URLSearchParams(params);
-        if (slug) p.set("category", slug); else p.delete("category");
-        setParams(p);
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: { staggerChildren: 0.15 }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 40 },
+        show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 250, damping: 20 } }
     };
 
     return (
-        <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" data-testid="shop-page">
-            <div className="mb-10 pb-6 border-b border-white/5">
-                <div className="font-mono text-xs uppercase tracking-[0.3em] text-neon-cyan mb-2">// shop_catalog</div>
-                <h1 className="font-heading text-4xl sm:text-6xl uppercase tracking-tight text-white" data-testid="shop-title">
-                    {category ? categoryName(category) : search ? `Results: ${search}` : "All Products"}
-                </h1>
-                {search && <p className="text-zinc-400 mt-2 font-body">Found {products.length} item{products.length !== 1 ? "s" : ""}</p>}
+        <main className="relative min-h-screen py-20 overflow-hidden flex justify-center">
+            <div className="fixed inset-0 z-0 pointer-events-none">
+                <motion.img
+                    initial={{ scale: 1 }}
+                    animate={{ scale: 1.15 }}
+                    transition={{ duration: 20, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
+                    src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?q=80&w=2070&auto=format&fit=crop"
+                    alt="Cyberpunk Background"
+                    className="w-full h-full object-cover opacity-25"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/95 via-[#0a0a0f]/80 to-[#050505]/95 backdrop-blur-[2px]" />
+                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-neon-purple/10 via-transparent to-transparent opacity-50" />
             </div>
 
-            <div className="grid lg:grid-cols-12 gap-8">
-                {/* Sidebar Filters */}
-                <aside className="lg:col-span-3 space-y-6" data-testid="shop-filters">
-                    <div className="glass p-5">
-                        <div className="font-heading text-sm uppercase tracking-widest text-white mb-4 flex items-center gap-2">
-                            <SlidersHorizontal className="w-4 h-4 text-neon-purple" strokeWidth={1.5} /> Filters
-                        </div>
-
-                        <div className="mb-5">
-                            <div className="font-mono text-[10px] uppercase tracking-widest text-zinc-500 mb-2">Categories</div>
-                            <div className="space-y-1">
-                                <button onClick={() => setCategory("")} className={`block w-full text-left px-2 py-1.5 text-sm font-heading uppercase tracking-wider transition-colors ${!category ? 'text-neon-purple' : 'text-zinc-400 hover:text-white'}`} data-testid="filter-all">
-                                    All
-                                </button>
-                                {CATEGORIES.map(c => (
-                                    <button key={c.slug} onClick={() => setCategory(c.slug)} className={`block w-full text-left px-2 py-1.5 text-sm font-heading uppercase tracking-wider transition-colors ${category === c.slug ? 'text-neon-purple' : 'text-zinc-400 hover:text-white'}`} data-testid={`filter-${c.slug}`}>
-                                        {c.name}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {(category || search) && (
-                            <button onClick={() => setParams({})} className="text-xs flex items-center gap-1 text-neon-magenta hover:text-white" data-testid="clear-filters">
-                                <X className="w-3 h-3" /> Clear filters
-                            </button>
-                        )}
+            <div className="relative z-10 w-full max-w-[1600px] px-6 sm:px-8 lg:px-12">
+                {loading ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                        {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                            <div key={i} className="aspect-[3/4] bg-white/5 rounded-xl animate-pulse border border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)]" />
+                        ))}
                     </div>
-                </aside>
-
-                {/* Grid */}
-                <section className="lg:col-span-9">
-                    <div className="flex items-center justify-between mb-5">
-                        <div className="font-mono text-xs text-zinc-500 uppercase tracking-widest">{loading ? "Loading..." : `${products.length} item${products.length !== 1 ? "s" : ""}`}</div>
-                        <select value={sort} onChange={(e) => setSort(e.target.value)} className="bg-black/60 border border-white/10 px-3 py-2 text-sm font-mono text-white focus:border-neon-purple focus:outline-none" data-testid="sort-select">
-                            <option value="default">Default</option>
-                            <option value="price_asc">Price: Low → High</option>
-                            <option value="price_desc">Price: High → Low</option>
-                            <option value="name">Name A-Z</option>
-                        </select>
-                    </div>
-
-                    {loading ? (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                            {[1,2,3,4,5,6].map(i => <div key={i} className="aspect-[3/4] bg-white/5 animate-pulse" />)}
-                        </div>
-                    ) : products.length === 0 ? (
-                        <div className="py-20 text-center" data-testid="empty-shop">
-                            <div className="font-heading text-zinc-500 uppercase tracking-widest text-lg">No products found</div>
-                            <Link to="/shop" className="inline-block mt-4 btn-neon">Reset</Link>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-5" data-testid="shop-grid">
-                            {products.map(p => <ProductCard key={p.id} product={p} />)}
-                        </div>
-                    )}
-                </section>
+                ) : products.length === 0 ? (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="py-40 flex flex-col items-center justify-center bg-[#0a0a0f]/40 backdrop-blur-xl rounded-2xl border border-white/5"
+                    >
+                        <div className="font-heading text-zinc-500 uppercase tracking-widest text-3xl mb-2 text-transparent bg-clip-text bg-gradient-to-r from-zinc-500 to-zinc-700">System Empty</div>
+                        <Link to="/shop" className="mt-6 px-10 py-3 rounded-lg bg-white/5 hover:bg-neon-purple text-white font-heading uppercase tracking-widest text-sm transition-all duration-300 shadow-lg hover:shadow-[0_0_25px_rgba(176,38,255,0.6)]">Reboot Search</Link>
+                    </motion.div>
+                ) : (
+                    <motion.div
+                        variants={containerVariants}
+                        initial="hidden"
+                        animate="show"
+                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8"
+                    >
+                        {products.map(p => (
+                            <motion.div key={p.id} variants={itemVariants}>
+                                <ProductCard product={p} />
+                            </motion.div>
+                        ))}
+                    </motion.div>
+                )}
             </div>
         </main>
     );

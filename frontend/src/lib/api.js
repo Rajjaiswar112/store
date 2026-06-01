@@ -1,11 +1,12 @@
 import axios from "axios";
 
-const BASE = process.env.REACT_APP_BACKEND_URL;
+const BASE = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
 export const API_BASE = `${BASE}/api`;
+
+console.log("Current BASE URL is:", BASE);
 
 export const api = axios.create({ baseURL: API_BASE });
 
-// Token storage helpers
 const TOKEN_KEY = "zenkai_token";
 export const getToken = () => localStorage.getItem(TOKEN_KEY);
 export const setToken = (t) => t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY);
@@ -28,9 +29,13 @@ export function categoryName(slug) {
     return CATEGORIES.find((c) => c.slug === slug)?.name || slug;
 }
 
-export function formatPrice(n) {
-    return `$${Number(n).toFixed(2)}`;
-}
+export const formatPrice = (price) => {
+    return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        minimumFractionDigits: 2
+    }).format(price);
+};
 
 export function errMsg(e) {
     const d = e?.response?.data?.detail;

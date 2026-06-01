@@ -10,22 +10,47 @@ export function WishlistProvider({ children }) {
     const [products, setProducts] = useState([]);
 
     const refresh = useCallback(async () => {
-        if (!user) { setIds([]); setProducts([]); return; }
+        if (!user) {
+            setIds([]);
+            setProducts([]);
+            return [];
+        }
         try {
             const { data } = await api.get("/wishlist");
-            setIds(data.product_ids || []);
+            const safeIds = data.products?.map(p => typeof p === 'object' ? (p._id || p.id) : p) || [];
+
+            setIds(safeIds);
             setProducts(data.products || []);
-        } catch { setIds([]); }
+            return safeIds;
+        } catch (error) {
+            setIds([]);
+            return [];
+        }
     }, [user]);
 
-    useEffect(() => { refresh(); }, [refresh]);
+    useEffect(() => {
+        refresh();
+    }, [refresh]);
 
     const toggle = async (pid) => {
-        const { data } = await api.post(`/wishlist/${pid}`);
-        await refresh();
-        return data.added;
+        if (!user) return false;
+        try {
+            const isCurrentlyInWishlist = ids.some(id => String(id) === String(pid));
+
+            if (isCurrentlyInWishlist) {
+                await api.delete(`/wishlist/${pid}`);
+            } else {
+                await api.post("/wishlist", { product_id: pid });
+            }
+
+            const updatedIds = await refresh();
+            return updatedIds.some(id => String(id) === String(pid));
+        } catch (error) {
+            throw error;
+        }
     };
-    const has = (pid) => ids.includes(pid);
+
+    const has = (pid) => ids.some(id => String(id) === String(pid));
 
     return (
         <WishlistCtx.Provider value={{ ids, products, toggle, has, refresh }}>

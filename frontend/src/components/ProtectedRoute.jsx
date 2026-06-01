@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 export default function ProtectedRoute({ children, adminOnly = false }) {
     const { user, loading } = useAuth();
     const location = useLocation();
+
     if (loading || user === null) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-[#050505]">
@@ -14,11 +15,14 @@ export default function ProtectedRoute({ children, adminOnly = false }) {
             </div>
         );
     }
+
     if (!user) {
         return <Navigate to="/login" state={{ from: location.pathname }} replace />;
     }
-    if (adminOnly && user.role !== "admin") {
+
+    if (adminOnly && user.isAdmin !== true) {
         return <Navigate to="/" replace />;
     }
+
     return children;
 }
