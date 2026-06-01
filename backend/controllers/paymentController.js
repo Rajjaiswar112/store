@@ -1,27 +1,29 @@
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-const Product = require("../models/Product"); // Adjust path to your Product model if needed
+const Product = require("../models/Product"); 
 
 const createPaymentIntent = async (req, res) => {
     try {
         const { items } = req.body;
-
-        // 1. Calculate the exact total on the backend to prevent frontend tampering
+        
         let totalAmount = 0;
+        
         for (const item of items) {
-            // Depending on how your cart is structured, it might be item.product or item._id
-            const productId = item.product || item._id; 
-            const product = await Product.findById(productId);
+            const productId = item.product?._id || item.product?.id || item.product_id || item._id; 
             
-            if (product) {
-                totalAmount += product.price * item.quantity;
+            if (productId) {
+                const product = await Product.findById(productId);
+                if (product) {
+                    totalAmount += product.price * item.quantity;
+                }
             }
         }
 
-        // 2. Stripe requires the amount in the smallest currency unit (Paise for INR)
-        // Example: ₹3,500 becomes 350000 paise
-        const amountInPaise = totalAmount * 100;
+        if (totalAmount === 0) {
+            return res.status(400).json({ detail: "Cart total is zero or items not found" });
+        }
 
-        // 3. Tell Stripe to create a secure payment intent
+        const amountInPaise = Math.round(totalAmount * 100);
+
         const paymentIntent = await stripe.paymentIntents.create({
             amount: amountInPaise,
             currency: "inr",
@@ -30,7 +32,6 @@ const createPaymentIntent = async (req, res) => {
             },
         });
 
-        // 4. Send the secret token back to the React frontend
         res.status(200).send({
             clientSecret: paymentIntent.client_secret,
         });

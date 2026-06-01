@@ -9,19 +9,19 @@ const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY || "pk_
 
 export default function Checkout() {
     const [clientSecret, setClientSecret] = useState("");
-    const { cartItems, total } = useCart();
+    const { items, total } = useCart();
 
     useEffect(() => {
         const fetchSecret = async () => {
             try {
-                const { data } = await api.post("/payment/create-intent", { items: cartItems });
+                const { data } = await api.post("/payment/create-intent", { items });
                 setClientSecret(data.clientSecret);
             } catch (error) {
                 console.error(error);
             }
         };
-        if (cartItems?.length > 0) fetchSecret();
-    }, [cartItems]);
+        if (items?.length > 0) fetchSecret();
+    }, [items]);
 
     const appearance = {
         theme: 'night',
@@ -35,9 +35,13 @@ export default function Checkout() {
             borderRadius: '8px',
         },
         rules: {
-            tabIconSelectedColor: '#06B6D4',
-            InputBackgroundColor: 'rgba(255, 255, 255, 0.05)',
-            InputBorderColor: 'rgba(255, 255, 255, 0.1)',
+            '.Tab--selected': {
+                color: '#06B6D4'
+            },
+            '.Input': {
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                borderColor: 'rgba(255, 255, 255, 0.1)'
+            }
         }
     };
 

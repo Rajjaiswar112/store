@@ -25,14 +25,17 @@ export function CartProvider({ children }) {
         await api.post("/cart", { product_id, quantity });
         await refresh();
     };
+    
     const update = async (product_id, quantity) => {
         await api.put(`/cart/${product_id}`, { product_id, quantity });
         await refresh();
     };
+    
     const remove = async (product_id) => {
         await api.delete(`/cart/${product_id}`);
         await refresh();
     };
+    
     const clear = async () => {
         await api.delete("/cart");
         await refresh();
