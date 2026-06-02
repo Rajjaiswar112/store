@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { api } from "../lib/api";
 import ProductCard from "../components/ProductCard";
+import FeaturedProduct from "../components/FeaturedProduct";
 import { motion } from "framer-motion";
 
 export default function Shop() {
@@ -36,6 +37,9 @@ export default function Shop() {
         show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 250, damping: 20 } }
     };
 
+    const featuredGojo = products.find(p => p.name?.toUpperCase().includes("GOJO"));
+    const standardProducts = products.filter(p => p !== featuredGojo);
+
     return (
         <main className="relative min-h-screen py-20 overflow-hidden flex justify-center">
             <div className="fixed inset-0 z-0 pointer-events-none">
@@ -48,7 +52,7 @@ export default function Shop() {
                     className="w-full h-full object-cover opacity-25"
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/95 via-[#0a0a0f]/80 to-[#050505]/95 backdrop-blur-[2px]" />
-                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-neon-purple/10 via-transparent to-transparent opacity-50" />
+                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#7C3AED]/10 via-transparent to-transparent opacity-50" />
             </div>
 
             <div className="relative z-10 w-full max-w-[1600px] px-6 sm:px-8 lg:px-12">
@@ -65,21 +69,28 @@ export default function Shop() {
                         className="py-40 flex flex-col items-center justify-center bg-[#0a0a0f]/40 backdrop-blur-xl rounded-2xl border border-white/5"
                     >
                         <div className="font-heading text-zinc-500 uppercase tracking-widest text-3xl mb-2 text-transparent bg-clip-text bg-gradient-to-r from-zinc-500 to-zinc-700">System Empty</div>
-                        <Link to="/shop" className="mt-6 px-10 py-3 rounded-lg bg-white/5 hover:bg-neon-purple text-white font-heading uppercase tracking-widest text-sm transition-all duration-300 shadow-lg hover:shadow-[0_0_25px_rgba(176,38,255,0.6)]">Reboot Search</Link>
+                        <Link to="/shop" className="mt-6 px-10 py-3 rounded-lg bg-white/5 hover:bg-[#7C3AED] text-white font-heading uppercase tracking-widest text-sm transition-all duration-300 shadow-lg hover:shadow-[0_0_25px_rgba(124,58,237,0.6)]">Reboot Search</Link>
                     </motion.div>
                 ) : (
-                    <motion.div
-                        variants={containerVariants}
-                        initial="hidden"
-                        animate="show"
-                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8"
-                    >
-                        {products.map(p => (
-                            <motion.div key={p.id} variants={itemVariants}>
-                                <ProductCard product={p} />
-                            </motion.div>
-                        ))}
-                    </motion.div>
+                    <div className="w-full">
+                        {featuredGojo && (
+                            <div className="mb-16">
+                                <FeaturedProduct product={featuredGojo} />
+                            </div>
+                        )}
+                        <motion.div
+                            variants={containerVariants}
+                            initial="hidden"
+                            animate="show"
+                            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8"
+                        >
+                            {standardProducts.map(p => (
+                                <motion.div key={p._id || p.id} variants={itemVariants}>
+                                    <ProductCard product={p} />
+                                </motion.div>
+                            ))}
+                        </motion.div>
+                    </div>
                 )}
             </div>
         </main>

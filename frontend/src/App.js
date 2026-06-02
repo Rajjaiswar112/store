@@ -19,8 +19,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import Success from "./pages/Success";
-import Admin from "./pages/Admin";
-import AddProduct from "./pages/admin/AddProduct";
+import AdminDashboard from "./pages/AdminDashboard";
 import Checkout from "./pages/Checkout";
 
 function Shell() {
@@ -40,8 +39,7 @@ function Shell() {
                 <Route path="/wishlist" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                 <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
                 <Route path="/order/success" element={<ProtectedRoute><Success /></ProtectedRoute>} />
-                <Route path="/admin" element={<ProtectedRoute adminOnly><Admin /></ProtectedRoute>} />
-                <Route path="/admin/add-product" element={<ProtectedRoute adminOnly><AddProduct /></ProtectedRoute>} />
+                <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
             </Routes>
             <Footer />
             <Toaster position="bottom-right" theme="dark" toastOptions={{
