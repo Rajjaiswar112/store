@@ -1,0 +1,115 @@
+/* frontend/src/Auth.css */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Dynamic Animated Gradient */
+  background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #e94560);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+  padding: 20px;
+  font-family: 'Inter', sans-serif;
+}
+
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 40px 30px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  text-align: center;
+  color: #ffffff;
+}
+
+.glass-card h2 {
+  margin-bottom: 10px;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.glass-card p {
+  margin-bottom: 30px;
+  color: #b0b0c0;
+  font-size: 0.95rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.input-group {
+  text-align: left;
+}
+
+.auth-input {
+  width: 100%;
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: white;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.auth-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.auth-input:focus {
+  border-color: #e94560;
+  background: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 15px rgba(233, 69, 96, 0.3);
+}
+
+.auth-button {
+  background: #e94560;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.auth-button:hover {
+  background: #ff5274;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(233, 69, 96, 0.4);
+}
+
+.auth-link {
+  margin-top: 25px;
+  font-size: 0.9rem;
+  color: #b0b0c0;
+}
+
+.auth-link a {
+  color: #e94560;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s;
+}
+
+.auth-link a:hover {
+  color: #ffffff;
+}
